@@ -2,6 +2,9 @@
 
 > Search and package javascript files in HTML
 
+### Status
+[![Build Status](https://travis-ci.org/bradwoo8621/grunt-group-javascript.png)](https://travis-ci.org/bradwoo8621/grunt-group-javascript)
+
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
 

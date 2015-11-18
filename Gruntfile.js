@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       default_options: {
         options: {
             sourcePathPrefix: 'test',
-            date: false,
+            date: true,
             min: true
         },
         files: {
