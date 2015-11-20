@@ -23,7 +23,7 @@ grunt.loadNpmTasks('grunt-group-javascript');
 ## The "group_javascript" task
 
 ### Overview
-This task will concat the javascript files between `startLine` and `endLine`, and replace the javascript lines in html file with `<script src='bundle-hash-date.js'></script>`. All javascript files will be concatenated into one file at the same folder with target html file.
+This task will concat the javascript files between `startLine` and `endLine`, and replace the javascript lines in html file with `<script src='htmlFileName-bundle-hash-date.js'></script>`. All javascript files will be concatenated into one file at the same folder with target html file.
 In your project's Gruntfile, add a section named `group_javascript` to the data object passed into `grunt.initConfig()`.
 
 For example:  
@@ -31,7 +31,7 @@ For example:
 There is a html file which named `test/index.html`, contains javascript references as below,
 ```html
 <script src='a.js'></script>
-<script src='b.js'></script>
+<script src='b.jsx' type='text/jsx'></script>
 ```
 
 Simply add start and end line to define the files you want to bundle,  

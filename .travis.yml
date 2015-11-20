@@ -7,3 +7,5 @@ install:
   - npm install grunt-contrib-clean
   - npm install grunt-contrib-jshint
   - npm install grunt-contrib-nodeunit
+  - npm install grunt-contrib-uglify
+  - npm install grunt-react
