@@ -25,11 +25,15 @@ module.exports = function(grunt) {
       algorithm: 'md5',
       hashLength: 8,
       min: true,
-      date: true
+      date: false,
+      jsx: true
     });
 
     if (!options.sourcePathPrefix) {
         grunt.fail.fatal('"sourcePathPrefix" can not be empty.');
+    }
+    if (!options.bundleName) {
+        grunt.fail.fatal('"bundleName" can not be empty');
     }
 
     var today = new Date();
@@ -38,6 +42,36 @@ module.exports = function(grunt) {
     var day = today.getDate();
     day = day >= 10 ? day : ('0' + day);
     today = today.getFullYear() + '' + month + day;
+
+    var path = function(filePath) {
+        var fileFolder = '';
+        var fileName = '';
+
+        var lastFileSeparatorIndex = filePath.lastIndexOf('/');
+        if (lastFileSeparatorIndex !== -1) {
+            fileFolder = filePath.substring(0, lastFileSeparatorIndex + 1);
+            fileName = filePath.substring(lastFileSeparatorIndex + 1);
+        } else {
+            fileName = filePath;
+        }
+        fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+        grunt.log.writeln('File folder "' + fileFolder + '"');
+        grunt.log.writeln('File name "' + fileName + '"');
+        return {
+            folder: fileFolder,
+            file: fileName
+        };
+    };
+
+    var getScriptBundleFileName = function(sourceFile, options, scriptsContent) {
+        var hash = crypto.createHash(options.algorithm).update(scriptsContent).digest('hex');
+        var suffix = hash.slice(0, options.hashLength);
+        var ext = options.jsx ? 'jsx' : 'js';
+        return {
+            file: sourceFile.file + '-' + options.bundleName + '-' + suffix +  (options.date ? ('-' + today) : '') + '.' + ext,
+            min: sourceFile.file + '-' + options.bundleName + '-' + suffix +  (options.date ? ('-' + today) : '') + (options.min ? '.min' : '') + '.js'
+        };
+    };
 
     // Iterate over all specified file groups.
     this.files.forEach(function(f) {
@@ -53,9 +87,10 @@ module.exports = function(grunt) {
         } else {
           return true;
         }
-      }).map(function(filePath) {
+      }).forEach(function(filePath) {
         // Read file source.
         grunt.log.writeln('Process file [' + filePath + '] starting...');
+        var sourceFile = path(filePath);
         var fileContent = grunt.file.read(filePath);
         // grunt.log.writeln(fileContent.length);
         var lines = fileContent.split(lineRegExp);
@@ -83,20 +118,15 @@ module.exports = function(grunt) {
         });
         // grunt.log.writeln(scriptTagIndex);
         if (scriptTags.length !== 0) {
-            var fileFolder = '';
-            var lastFileSeparatorIndex = filePath.lastIndexOf('/');
-            if (lastFileSeparatorIndex !== -1) {
-                fileFolder = filePath.substring(0, lastFileSeparatorIndex + 1);
-            }
             var scriptTagsPath = [];
             var scriptsContent = scriptTags.map(function(tag) {
                 var match = jsTagSrcRegExp.exec(tag);
                 if (match != null) {
-                    var scriptFilePath = fileFolder + match[2];
+                    var scriptFilePath = sourceFile.folder + match[2];
                     if (!grunt.file.exists(scriptFilePath)) {
                         grunt.log.error('Javascript file "' + scriptFilePath + '" not found.');
                     } else {
-                        return '// from file:\r// ' + scriptFilePath + '\r' + grunt.file.read(scriptFilePath);
+                        return '/* from file: ' + scriptFilePath + ' */\r' + grunt.file.read(scriptFilePath);
                     }
                 }
                 return null;
@@ -114,30 +144,18 @@ module.exports = function(grunt) {
             }
             targetFilePath = targetFolder + targetFilePath;
             // grunt.log.writeln(targetFilePath);
-            var hash = crypto.createHash(options.algorithm).update(scriptsContent).digest('hex');
-            var suffix = hash.slice(0, options.hashLength);
-            var scriptFileName = 'bundle-' + suffix +  (options.date ? ('-' + today) : '') + (options.min ? '.min' : '') + '.js';
-            var targetScriptFilePath = targetFilePath.substring(0, targetFilePath.lastIndexOf('/')) + '/' + scriptFileName;
+            var scriptFileName = getScriptBundleFileName(sourceFile, options, scriptsContent);
+            var targetScriptFilePath = targetFilePath.substring(0, targetFilePath.lastIndexOf('/')) + '/' + scriptFileName.file;
             grunt.file.write(targetScriptFilePath, scriptsContent);
             grunt.log.writeln('Target javascript file "' + targetScriptFilePath + '" created.');
 
-            newLines.splice(scriptTagIndex, 0, '<script src="' + scriptFileName + '"></script>');
+            newLines.splice(scriptTagIndex, 0, '<script src="' + scriptFileName.min + '"></script>');
             grunt.file.write(targetFilePath, newLines.join('\r'));
             grunt.log.writeln('File [' + filePath + '] processed.');
         }
 
         return newLines.join('\r');
       });
-      //.join(grunt.util.normalizelf(options.separator));
-
-      // Handle options.
-      // src += options.punctuation;
-
-      // Write the destination file.
-      // grunt.file.write(f.dest, src);
-
-      // Print a success message.
-      // grunt.log.writeln('File "' + f.dest + '" created.');
     });
   });
 };
