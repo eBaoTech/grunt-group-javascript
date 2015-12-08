@@ -2,22 +2,22 @@
   "name": "grunt-group-javascript",
   "description": "Search and package javascript files in HTML",
   "version": "0.0.2",
-  "homepage": "https://github/com/ebaotech/grunt-group-javascript",
+  "homepage": "https://github.com/ebaotech/grunt-group-javascript",
   "author": {
     "name": "brad.wu",
     "email": "brad.wu@ebaotech.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github/com/ebaotech/grunt-group-javascript.git"
+    "url": "git://github.com/ebaotech/grunt-group-javascript.git"
   },
   "bugs": {
-    "url": "https://github/com/ebaotech/grunt-group-javascript/issues"
+    "url": "https://github.com/ebaotech/grunt-group-javascript/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github/com/ebaotech/grunt-group-javascript/blob/master/LICENSE-MIT"
+      "url": "https://github.com/ebaotech/grunt-group-javascript/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {
